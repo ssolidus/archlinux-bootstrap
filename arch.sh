@@ -12,31 +12,41 @@ if [ ${MACHINE_TYPE} == 'x86_64' ]; then
 fi
 # Update and install my packages
 sudo pacman -Syu --noconfirm
-yes | sudo pacman -S --noconfirm linux-hardened thunar xterm pepperflash kdialog xscreensaver xrandr unclutter scrot mpd mpc dmenu xsel wget awesome vim emacs xorg xorg-xinit rxvt-unicode git base-devel firefox chromium ffmpeg wine-staging wine_gecko wine-mono
+sudo pacman -S --noconfirm linux-hardened thunar xterm pepper-flash kdialog xscreensaver xorg-xrandr unclutter scrot mpd mpc dmenu xsel wget awesome vim emacs xorg xorg-xinit rxvt-unicode git base-devel firefox chromium ffmpeg binutils make gcc fakeroot pkg-config expac yajl git --noconfirm --needed
 
-# Install yaourt for AUR access
-git clone https://aur.archlinux.org/package-query.git $HOME/package-query
-cd $HOME/package-query
-makepkg -si --noconfirm
-git clone https://aur.archlinux.org/yaourt.git $HOME/yaourt
-cd $HOME/yaourt
-makepkg -si --noconfirm
+# Install pacaur for AUR access
+mkdir pactmp
+cd pactmp/
+## Install cower
+if [ ! -n "$(pacman -Qs cower)" ]; then
+    curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=cower
+    makepkg PKGBUILD --skippgpcheck --install --needed
+fi
+
+## Install pacaur
+if [ ! -n "$(pacman -Qs pacaur)" ]; then
+    curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pacaur
+    makepkg PKGBUILD --install --needed
+fi
+i
 #cleanup
-rm -rf $HOME/yaourt/ $HOME/package-query
-# install login manager
-## yaourt -S cdm-git
+cd $HOME/
+rm -rf pactmp/
+
 # Configure awesome
 mkdir -p $HOME/.config/awesome/
 cp /etc/xdg/awesome/rc.lua ~/.config/awesome/
+
 # Clone config
 git clone --recursive https://github.com/lcpz/awesome-copycats.git $HOME/awesome-copycats/
 mv -bv $HOME/awesome-copycats/* $HOME/.config/awesome
 cp $HOME/.config/awesome/rc.lua.template $HOME/.config/awesome/rc.lua
+
 #cleanup
 rm -rf $HOME/awesome-copycats
-#resolution
-echo "Enter your desired resolution e.g. 1280x720"
-read resolution
+#resolution WIP
+# echo "Enter your desired resolution e.g. 1280x720"
+# read resolution
 
 #Start awesome using X
 cp /etc/X11/xinit/xinitrc ~/.xinitrc
